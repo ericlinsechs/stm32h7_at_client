@@ -22,6 +22,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stm32wb_at.h"
+#include "stm32wb_at_ble.h"
+#include "stm32wb_at_client.h"
+#include "ble_at_appli.h"
 #include "stdio.h"
 
 /* USER CODE END Includes */
@@ -48,7 +52,7 @@ UART_HandleTypeDef huart3;
 
 osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
-
+osThreadId bleAtTaskHandle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,6 +62,8 @@ static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
+void BleAtTask(void const * argument);
+
 #if defined(__ICCARM__)
 /* New definition from EWARM V9, compatible with EWARM8 */
 int iar_fputc(int ch);
@@ -133,9 +139,15 @@ int main(void)
   BSP_LED_Init(LED_GREEN);
   BSP_LED_Init(LED_RED);
 
-  ble_debug("\n--------------------------------------------\n");
-  ble_debug("Start of the STM32H7 AT client example.\n");
-  ble_debug("--------------------------------------------\n");
+  BSP_LED_Off(LED_GREEN);
+  BSP_LED_Off(LED_RED);
+
+  printf("\n--------------------------------------------\n");
+  printf("Start of the STM32H7 AT client example.\n");
+  printf("--------------------------------------------\n");
+
+  osThreadDef(bleAtTask, BleAtTask, osPriorityAboveNormal, 0, configMINIMAL_STACK_SIZE);
+  bleAtTaskHandle = osThreadCreate(osThread(bleAtTask), NULL);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -326,6 +338,40 @@ static void MX_USART3_UART_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief  Function implementing the BleAtTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+void BleAtTask(void const * argument)
+{
+	uint8_t status = 0;
+
+	osDelay(2000);
+	ble_debug("AT initialize start...\n");
+
+	status |= stm32wb_at_Init(&at_buffer[0], sizeof(at_buffer));
+	status |= stm32wb_at_client_Init();
+	if(status != 0)
+	{
+		Error_Handler();
+	}
+	ble_debug("AT initialize completed.\n");
+
+	/* Infinite loop */
+	for(;;)
+	{
+		osDelay(1000);
+		ble_debug("AT test...\n");
+
+		/* Test the UART communication link with BLE module */
+		status |= stm32wb_at_client_Query(BLE_TEST);
+		if(status != 0)
+		{
+			Error_Handler();
+		}
+	}
+}
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */

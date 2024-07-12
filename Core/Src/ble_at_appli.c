@@ -125,7 +125,7 @@ uint8_t stm32wb_at_ll_Transmit(uint8_t *pBuff, uint16_t Size)
     uint8_t status;
 
     status = HAL_UART_Transmit(&huart1, pBuff, Size, 0xFFFF);
-//    printf("  TX: %s\r\n",pBuff);
+    //    printf("  TX: %s\r\n",pBuff);
 
     return status;
 }
@@ -140,9 +140,9 @@ uint8_t stm32wb_at_ll_Async_receive(uint8_t new_frame)
 {
     uint8_t status;
 
-     if (new_frame != 0) {
-    	 ble_debug("  RX: %s\r\n", at_buffer);
-     }
+    if (new_frame != 0) {
+        ble_debug("  RX: %s\r\n", at_buffer);
+    }
     status = HAL_UART_Receive_IT(&huart1, &received_byte, 1);
 
     return status;

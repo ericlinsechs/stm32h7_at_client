@@ -29,6 +29,7 @@
 
 /* COM define */
 #define USE_COM_LOG                         0U
+#define USE_BSP_COM_FEATURE                 1U
 
 #define LCD_LAYER_0_ADDRESS                 0xD0000000U
 #define LCD_LAYER_1_ADDRESS                 0xD0200000U

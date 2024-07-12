@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdio.h"
 
 /* USER CODE END Includes */
 
@@ -57,13 +58,21 @@ static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
-#ifdef __GNUC__
-/* With GCC, small printf (option LD Linker->Libraries->Small printf
-   set to 'Yes') calls __io_putchar() */
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
+#if defined(__ICCARM__)
+/* New definition from EWARM V9, compatible with EWARM8 */
+int iar_fputc(int ch);
+#define PUTCHAR_PROTOTYPE int iar_fputc(int ch)
+#define GETCHAR_PROTOTYPE int fgetc(FILE *f)
+#elif defined (__CC_ARM) || defined(__ARMCC_VERSION)
+/* ARM Compiler 5/6 */
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
+#define GETCHAR_PROTOTYPE int fgetc(FILE *f)
+#elif defined(__GNUC__)
+int __io_putchar(int ch);
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+int __io_getchar(void);
+#define GETCHAR_PROTOTYPE int __io_getchar(void)
+#endif /* __ICCARM__ */
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -73,6 +82,20 @@ PUTCHAR_PROTOTYPE
     HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, 0xFFFF);
 
     return ch;
+}
+GETCHAR_PROTOTYPE
+{
+  uint8_t ch = 0;
+  /* Place your implementation of fgetc here */
+
+  /* Clear the Overrun flag just before receiving the first character */
+  __HAL_UART_CLEAR_OREFLAG(&huart3);
+
+  /* Wait for reception of a character on the USART1 RX line
+     and echo this character on console */
+  HAL_UART_Receive(&huart3, (uint8_t *)&ch, 1, 0xFFFF);
+  HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, 0xFFFF);
+  return ch;
 }
 /* USER CODE END 0 */
 
@@ -109,6 +132,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   BSP_LED_Init(LED_GREEN);
   BSP_LED_Init(LED_RED);
+
+  ble_debug("\n--------------------------------------------\n");
+  ble_debug("Start of the STM32H7 AT client example.\n");
+  ble_debug("--------------------------------------------\n");
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -129,7 +156,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -299,7 +326,6 @@ static void MX_USART3_UART_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -312,11 +338,11 @@ static void MX_USART3_UART_Init(void)
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
-  printf("Hello world.\n");
+  ble_debug("Hello world.\n");
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	  vTaskSuspend( NULL );
   }
   /* USER CODE END 5 */
 }
@@ -351,6 +377,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
+  BSP_LED_On(LED_RED);
   while (1)
   {
   }

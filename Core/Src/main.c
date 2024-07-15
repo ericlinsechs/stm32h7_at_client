@@ -352,13 +352,18 @@ void BleAtTask(void const *argument)
 
     /* Infinite loop */
     for (;;) {
-        osDelay(1000);
         ble_debug("AT test...\n");
 
         /* Test the UART communication link with BLE module */
         status |= stm32wb_at_client_Query(BLE_TEST);
         if (status != 0) {
             Error_Handler();
+        }
+        osDelay(1000);
+
+        if (global_ble_status == BLE_RET_STATUS_OK) {
+            ble_debug("AT test done.\n");
+            vTaskSuspend(NULL);
         }
     }
 }

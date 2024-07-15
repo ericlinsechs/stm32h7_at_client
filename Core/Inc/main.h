@@ -31,19 +31,24 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
 #include "stm32h750b_discovery.h"
 #include "stdio.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+enum {
+  BLE_RET_STATUS_OK = 1,
+  BLE_RET_STATUS_ERROR
+};
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 #define LED_GREEN      			LED1
 #define LED_RED        			LED2
+extern volatile uint8_t global_ble_status;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -55,7 +60,6 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

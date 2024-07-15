@@ -103,8 +103,11 @@ uint8_t stm32wb_at_client_Process_rx_frame(char * str)
 
   if( strcmp(str_local, AT_CMD_STATUS_OK) == 0)
   {
+    stm32wb_at_BLE_STATUS_t param;
     client_current_cmd = BLE_NONE;
     status = 0;
+    param.status = BLE_RET_STATUS_OK;
+    stm32wb_at_BLE_STATUS_cb(&param);
   }
   else if( strcmp(str_local, AT_CMD_STATUS_ERROR) == 0)
   {

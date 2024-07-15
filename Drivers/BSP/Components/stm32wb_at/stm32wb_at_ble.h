@@ -29,6 +29,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 #define FOREACH_AT_BLE_CMD(AT_BLE_CMD)\
+        AT_BLE_CMD(BLE_STATUS)\
         AT_BLE_CMD(BLE_TEST)\
         AT_BLE_CMD(BLE_SVC)\
         AT_BLE_CMD(BLE_INIT)\
@@ -72,6 +73,13 @@ extern "C" {
 #define GENERATE_AT_BLE_EVT_CB_FUNC(CMD) __weak uint8_t stm32wb_at_##CMD##_cb(stm32wb_at_##CMD##_t *param){UNUSED(param);return 1;}
 
 /* Exported types ------------------------------------------------------------*/
+
+/* BLE_STATUS */
+typedef struct
+{
+  uint8_t status;
+} stm32wb_at_BLE_STATUS_t;
+
 /* BLE_TEST */
 typedef struct
 {

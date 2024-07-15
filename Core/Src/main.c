@@ -53,6 +53,7 @@ UART_HandleTypeDef huart3;
 osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 osThreadId bleAtTaskHandle;
+osMessageQId bleStatusHandle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -165,7 +166,8 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+    osMessageQDef(bleStatusQueue, 1, uint8_t);
+    bleStatusHandle = osMessageCreate(osMessageQ(bleStatusQueue), NULL);
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
@@ -339,6 +341,7 @@ static void MX_USART3_UART_Init(void)
 void BleAtTask(void const *argument)
 {
     uint8_t status = 0;
+    osEvent event;
 
     osDelay(2000);
     ble_debug("AT initialize start...\n");
@@ -352,16 +355,17 @@ void BleAtTask(void const *argument)
 
     /* Infinite loop */
     for (;;) {
-        ble_debug("AT test...\n");
+        ble_debug("Send AT test command.\n");
 
         /* Test the UART communication link with BLE module */
         status |= stm32wb_at_client_Query(BLE_TEST);
         if (status != 0) {
             Error_Handler();
         }
-        osDelay(1000);
 
-        if (global_ble_status == BLE_RET_STATUS_OK) {
+        event = osMessageGet(bleStatusHandle, 1000);
+        if (event.status == osEventMessage &&
+            event.value.v == BLE_RET_STATUS_OK) {
             ble_debug("AT test done.\n");
             vTaskSuspend(NULL);
         }

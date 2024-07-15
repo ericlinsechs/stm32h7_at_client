@@ -46,7 +46,8 @@ uint8_t stm32wb_at_BLE_STATUS_cb(stm32wb_at_BLE_STATUS_t *param);
 
 uint8_t stm32wb_at_BLE_STATUS_cb(stm32wb_at_BLE_STATUS_t *param)
 {
-    global_ble_status = param->status;
+    if (osMessagePut(bleStatusHandle, param->status, 100) != osOK)
+        ble_debug("Fail to put message into queue.\r\n");
     return 0;
 }
 /* USER CODE END 4 */

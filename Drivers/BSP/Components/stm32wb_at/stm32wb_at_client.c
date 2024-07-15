@@ -28,7 +28,7 @@
 /* Private macros ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static char client_buff_tx[64];
-static stm32wb_at_BLE_CMD_t client_current_cmd;
+static volatile stm32wb_at_BLE_CMD_t client_current_cmd;
 
 /* Private function prototypes -----------------------------------------------*/
 static uint8_t stm32wb_at_client_Wait_ready(void);

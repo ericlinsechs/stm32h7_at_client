@@ -56,6 +56,7 @@ osThreadId defaultTaskHandle;
 osThreadId bleAtSendTaskHandle;
 osThreadId bleAtReceiveTaskHandle;
 osMessageQId bleRxHandle;
+osMessageQId bleTxHandle;
 
 extern volatile uint8_t global_ble_test;
 extern ble_at_event_handle event_handles[];
@@ -176,8 +177,17 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
+    /* AT Rx event queue */
     osMessageQDef(bleRxQueue, 5, int);
     bleRxHandle = osMessageCreate(osMessageQ(bleRxQueue), NULL);
+
+    /* AT Tx event queue */
+    osMessageQDef(bleTxQueue, 5, int);
+    bleTxHandle = osMessageCreate(osMessageQ(bleTxQueue), NULL);
+
+    /* Test the UART communication link with BLE module */
+    if (osMessagePut(bleTxHandle, BLE_TEST, 100) != osOK)
+        ble_debug("Fail to put message into queue.\r\n");
     /* USER CODE END RTOS_QUEUES */
 
     /* USER CODE BEGIN RTOS_THREADS */
@@ -374,18 +384,18 @@ void BleAtReceiveTask(void const *argument)
 void BleAtSendTask(void const *argument)
 {
     uint8_t status = 0;
-
-    ble_debug("Send AT test command.\n");
-
-    /* Test the UART communication link with BLE module */
-    status = stm32wb_at_client_Query(BLE_TEST);
-    if (status != 0) {
-        Error_Handler();
-    }
+    osEvent event;
 
     /* Infinite loop */
     for (;;) {
-        vTaskSuspend(NULL);
+        event = osMessageGet(bleTxHandle, 0xFFFF);
+        if (event.status == osEventMessage) {
+            ble_debug("Send AT test command.\n");
+            status = stm32wb_at_client_Query(event.value.v);
+            if (status != 0) {
+                Error_Handler();
+            }
+        }
     }
 }
 /* USER CODE END 4 */

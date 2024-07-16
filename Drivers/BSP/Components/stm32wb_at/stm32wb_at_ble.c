@@ -30,10 +30,5 @@ const char *AT_BLE_CMD_STRING[] = {
   FOREACH_AT_BLE_CMD(GENERATE_STRING)
 };
 
-const char *AT_BLE_EVT_STRING[] = {
-  FOREACH_AT_BLE_EVT(GENERATE_STRING)
-};
-
 /* Exported functions --------------------------------------------------------*/
 FOREACH_AT_BLE_CMD(GENERATE_AT_BLE_CB_FUNC)
-FOREACH_AT_BLE_EVT(GENERATE_AT_BLE_EVT_CB_FUNC)

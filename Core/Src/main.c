@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ble_at_appli.h"
+#include "ble_at_client_event_handle.h"
 #include "stdio.h"
 #include "stm32wb_at.h"
 #include "stm32wb_at_ble.h"
@@ -55,6 +56,9 @@ osThreadId defaultTaskHandle;
 osThreadId bleAtSendTaskHandle;
 osThreadId bleAtReceiveTaskHandle;
 osMessageQId bleRxHandle;
+
+extern volatile uint8_t global_ble_test;
+extern ble_at_event_handle event_handles[];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -362,12 +366,9 @@ void BleAtReceiveTask(void const *argument)
     /* Infinite loop */
     for (;;) {
         event = osMessageGet(bleRxHandle, 0xFFFF);
-        if (event.status == osEventMessage && event.value.v == BLE_TEST) {
-            if (global_ble_status == BLE_RET_STATUS_OK) {
-                global_ble_status = 0;
-                ble_debug("AT test done.\n");
-                vTaskSuspend(NULL);
-            }
+        if (event.status == osEventMessage) {
+            event_handles[event.value.v]();
+            ble_debug("AT test done.\n");
         }
     }
 }
@@ -391,6 +392,7 @@ void BleAtSendTask(void const *argument)
 
     /* Infinite loop */
     for (;;) {
+        vTaskSuspend(NULL);
     }
 }
 /* USER CODE END 4 */

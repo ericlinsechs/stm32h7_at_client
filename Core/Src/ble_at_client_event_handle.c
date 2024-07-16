@@ -18,7 +18,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define ASSIGN_AT_BLE_EVENT_HANDLE(CMD) stm32wb_at_##CMD##_event_handle,
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -58,9 +58,13 @@ uint8_t stm32wb_at_BLE_VER_event_handle(void)
     return 0;
 }
 
+uint8_t stm32wb_at_BLE_NONE_event_handle(void)
+{
+    return 0;
+}
 /* Declare an array of BLE AT event handle function pointers */
-ble_at_event_handle event_handles[] = {stm32wb_at_BLE_TEST_event_handle,
-                                       stm32wb_at_BLE_VER_event_handle};
+ble_at_event_handle event_handles[] = {
+    FOREACH_AT_BLE_CMD(ASSIGN_AT_BLE_EVENT_HANDLE)};
 /* USER CODE END 0 */
 
 /******************************************************************************/

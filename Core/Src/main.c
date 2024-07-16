@@ -65,7 +65,6 @@ extern ble_at_event_handle event_handles[];
 void SystemClock_Config(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
-void StartDefaultTask(void const *argument);
 
 /* USER CODE BEGIN PFP */
 void BleAtSendTask(void const *argument);
@@ -180,12 +179,6 @@ int main(void)
     osMessageQDef(bleRxQueue, 5, int);
     bleRxHandle = osMessageCreate(osMessageQ(bleRxQueue), NULL);
     /* USER CODE END RTOS_QUEUES */
-
-    /* Create the thread(s) */
-    /* definition and creation of defaultTask */
-    osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0,
-                configMINIMAL_STACK_SIZE);
-    defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -396,24 +389,6 @@ void BleAtSendTask(void const *argument)
     }
 }
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
- * @brief  Function implementing the defaultTask thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const *argument)
-{
-    /* USER CODE BEGIN 5 */
-    ble_debug("Hello world.\n");
-    /* Infinite loop */
-    for (;;) {
-        vTaskSuspend(NULL);
-    }
-    /* USER CODE END 5 */
-}
 
 /**
  * @brief  Period elapsed callback in non blocking mode

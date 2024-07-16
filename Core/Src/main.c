@@ -52,8 +52,9 @@ UART_HandleTypeDef huart3;
 
 osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
-osThreadId bleAtTaskHandle;
-osMessageQId bleStatusHandle;
+osThreadId bleAtSendTaskHandle;
+osThreadId bleAtReceiveTaskHandle;
+osMessageQId bleRxHandle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,7 +64,8 @@ static void MX_USART3_UART_Init(void);
 void StartDefaultTask(void const *argument);
 
 /* USER CODE BEGIN PFP */
-void BleAtTask(void const *argument);
+void BleAtSendTask(void const *argument);
+void BleAtReceiveTask(void const *argument);
 
 #if defined(__ICCARM__)
 /* New definition from EWARM V9, compatible with EWARM8 */
@@ -148,9 +150,14 @@ int main(void)
     printf("Start of the STM32H7 AT client example.\n");
     printf("--------------------------------------------\n");
 
-    osThreadDef(bleAtTask, BleAtTask, osPriorityAboveNormal, 0,
+    osThreadDef(BleAtReceiveTask, BleAtReceiveTask, osPriorityAboveNormal, 0,
                 configMINIMAL_STACK_SIZE);
-    bleAtTaskHandle = osThreadCreate(osThread(bleAtTask), NULL);
+    bleAtReceiveTaskHandle = osThreadCreate(osThread(BleAtReceiveTask), NULL);
+
+    osThreadDef(BleAtSendTask, BleAtSendTask, osPriorityNormal, 0,
+                configMINIMAL_STACK_SIZE);
+    bleAtSendTaskHandle = osThreadCreate(osThread(BleAtSendTask), NULL);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -166,13 +173,13 @@ int main(void)
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
-    osMessageQDef(bleStatusQueue, 1, uint8_t);
-    bleStatusHandle = osMessageCreate(osMessageQ(bleStatusQueue), NULL);
+    osMessageQDef(bleRxQueue, 5, int);
+    bleRxHandle = osMessageCreate(osMessageQ(bleRxQueue), NULL);
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
     /* definition and creation of defaultTask */
-    osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0,
+    osThreadDef(defaultTask, StartDefaultTask, osPriorityLow, 0,
                 configMINIMAL_STACK_SIZE);
     defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
@@ -334,41 +341,56 @@ static void MX_USART3_UART_Init(void)
 
 /* USER CODE BEGIN 4 */
 /**
- * @brief  Function implementing the BleAtTask thread.
+ * @brief  Function implementing the BleAtReceiveTask thread.
  * @param  argument: Not used
  * @retval None
  */
-void BleAtTask(void const *argument)
+void BleAtReceiveTask(void const *argument)
 {
     uint8_t status = 0;
     osEvent event;
 
-    osDelay(2000);
-    ble_debug("AT initialize start...\n");
+    ble_debug("init start...\n");
 
     status |= stm32wb_at_Init(&at_buffer[0], sizeof(at_buffer));
     status |= stm32wb_at_client_Init();
     if (status != 0) {
         Error_Handler();
     }
-    ble_debug("AT initialize completed.\n");
+    ble_debug("init complete.\n");
 
     /* Infinite loop */
     for (;;) {
-        ble_debug("Send AT test command.\n");
-
-        /* Test the UART communication link with BLE module */
-        status |= stm32wb_at_client_Query(BLE_TEST);
-        if (status != 0) {
-            Error_Handler();
+        event = osMessageGet(bleRxHandle, 0xFFFF);
+        if (event.status == osEventMessage && event.value.v == BLE_TEST) {
+            if (global_ble_status == BLE_RET_STATUS_OK) {
+                global_ble_status = 0;
+                ble_debug("AT test done.\n");
+                vTaskSuspend(NULL);
+            }
         }
+    }
+}
 
-        event = osMessageGet(bleStatusHandle, 1000);
-        if (event.status == osEventMessage &&
-            event.value.v == BLE_RET_STATUS_OK) {
-            ble_debug("AT test done.\n");
-            vTaskSuspend(NULL);
-        }
+/**
+ * @brief  Function implementing the BleAtSendTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+void BleAtSendTask(void const *argument)
+{
+    uint8_t status = 0;
+
+    ble_debug("Send AT test command.\n");
+
+    /* Test the UART communication link with BLE module */
+    status = stm32wb_at_client_Query(BLE_TEST);
+    if (status != 0) {
+        Error_Handler();
+    }
+
+    /* Infinite loop */
+    for (;;) {
     }
 }
 /* USER CODE END 4 */

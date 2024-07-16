@@ -29,7 +29,6 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 #define FOREACH_AT_BLE_CMD(AT_BLE_CMD)\
-        AT_BLE_CMD(BLE_STATUS)\
         AT_BLE_CMD(BLE_TEST)\
         AT_BLE_CMD(BLE_SVC)\
         AT_BLE_CMD(BLE_INIT)\
@@ -56,6 +55,7 @@ extern "C" {
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,
 #define GENERATE_AT_BLE_CB_PROTO(CMD) uint8_t stm32wb_at_##CMD##_cb(stm32wb_at_##CMD##_t *param);
+#define GENERATE_AT_BLE_EVENT_HANDLE_PROTO(CMD) uint8_t stm32wb_at_##CMD##_event_handle(void);
 #define GENERATE_AT_BLE_CB_FUNC(CMD) __weak uint8_t stm32wb_at_##CMD##_cb(stm32wb_at_##CMD##_t *param){UNUSED(param);return 1;}
 #define GENERATE_AT_BLE_SERVER_CB_PROTO(CMD) uint8_t stm32wb_at_##CMD##_server_cb(char *buff);
 #define GENERATE_AT_BLE_SERVER_CB_FUNC(CMD) __weak uint8_t stm32wb_at_##CMD##_server_cb(char *buff){return 1;}
@@ -74,16 +74,10 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 
-/* BLE_STATUS */
-typedef struct
-{
-  uint8_t status;
-} stm32wb_at_BLE_STATUS_t;
-
 /* BLE_TEST */
 typedef struct
 {
-  uint8_t dummy;
+  uint8_t status;
 } stm32wb_at_BLE_TEST_t;
 
 /* BLE_INIT */
@@ -300,6 +294,7 @@ extern const char *AT_BLE_EVT_STRING[BLE_EVT_NONE+1];
 /* Exported functions --------------------------------------------------------*/
 FOREACH_AT_BLE_CMD(GENERATE_AT_BLE_CB_PROTO)
 FOREACH_AT_BLE_EVT(GENERATE_AT_BLE_EVT_CB_PROTO)
+FOREACH_AT_BLE_CMD(GENERATE_AT_BLE_EVENT_HANDLE_PROTO)
 
 #ifdef __cplusplus
 }

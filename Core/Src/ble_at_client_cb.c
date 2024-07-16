@@ -29,26 +29,23 @@ extern osMessageQId bleRxHandle;
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-volatile uint8_t global_ble_status = 0;
+volatile uint8_t global_ble_test = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 
 /* USER CODE BEGIN PFP */
-uint8_t stm32wb_at_BLE_STATUS_cb(stm32wb_at_BLE_STATUS_t *param);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-/* USER CODE END 0 */
-
-/******************************************************************************/
-
-uint8_t stm32wb_at_BLE_STATUS_cb(stm32wb_at_BLE_STATUS_t *param)
+uint8_t stm32wb_at_BLE_TEST_cb(stm32wb_at_BLE_TEST_t *param)
 {
-    global_ble_status = param->status;
+    global_ble_test = param->status;
     if (osMessagePut(bleRxHandle, BLE_TEST, 100) != osOK)
         ble_debug("Fail to put message into queue.\r\n");
     return 0;
 }
-/* USER CODE END 4 */
+/* USER CODE END 0 */
+
+/******************************************************************************/

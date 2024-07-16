@@ -39,8 +39,8 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 enum {
-  BLE_RET_STATUS_OK = 1,
-  BLE_RET_STATUS_ERROR
+  BLE_RET_TEST_OK = 1,
+  BLE_RET_TEST_ERROR
 };
 /* USER CODE END ET */
 
@@ -48,7 +48,6 @@ enum {
 /* USER CODE BEGIN EC */
 #define LED_GREEN      			LED1
 #define LED_RED        			LED2
-extern volatile uint8_t global_ble_status;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

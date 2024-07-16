@@ -58,7 +58,6 @@ osThreadId bleAtReceiveTaskHandle;
 osMessageQId bleRxHandle;
 osMessageQId bleTxHandle;
 
-extern volatile uint8_t global_ble_test;
 extern ble_at_event_handle event_handles[];
 /* USER CODE END PV */
 
@@ -373,7 +372,6 @@ void BleAtReceiveTask(void const *argument)
         event = osMessageGet(bleRxHandle, 0xFFFF);
         if (event.status == osEventMessage) {
             event_handles[event.value.v]();
-            ble_debug("AT test done.\n");
         }
     }
 }

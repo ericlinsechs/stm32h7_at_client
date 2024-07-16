@@ -30,6 +30,7 @@ extern osMessageQId bleRxHandle;
 
 /* USER CODE BEGIN PV */
 volatile uint8_t global_ble_test = 0;
+stm32wb_at_BLE_VER_t global_ble_ver;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -48,9 +49,15 @@ uint8_t stm32wb_at_BLE_TEST_cb(stm32wb_at_BLE_TEST_t *param)
 }
 uint8_t stm32wb_at_BLE_VER_cb(stm32wb_at_BLE_VER_t *param)
 {
-    ble_debug("Module Type: %s\n", param->module_type);
-    ble_debug("Firmware Version: %s\n", param->fw_ver);
-    ble_debug("Production Date: %s\n", param->production_date);
+    strncpy(global_ble_ver.module_type, param->module_type,
+            sizeof(global_ble_ver.module_type));
+    strncpy(global_ble_ver.fw_ver, param->fw_ver,
+            sizeof(global_ble_ver.fw_ver));
+    strncpy(global_ble_ver.production_date, param->production_date,
+            sizeof(global_ble_ver.production_date));
+
+    if (osMessagePut(bleRxHandle, BLE_VER, 100) != osOK)
+        ble_debug("Fail to put message into queue.\r\n");
 
     return 0;
 }

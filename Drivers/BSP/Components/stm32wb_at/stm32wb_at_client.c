@@ -183,7 +183,7 @@ uint8_t stm32wb_at_client_Process_rx_frame(char * str)
             if(status == 0U)
             {
               status = stm32wb_at_BLE_VER_cb(&param);
-            }      
+            }
             break;
           }
           case BLE_SVC:

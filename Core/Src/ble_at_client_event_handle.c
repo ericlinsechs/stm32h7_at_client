@@ -41,9 +41,9 @@ extern stm32wb_at_BLE_VER_t global_ble_ver;
 /* USER CODE BEGIN 0 */
 uint8_t stm32wb_at_BLE_TEST_event_handle(void)
 {
-    if (global_ble_test == BLE_RET_TEST_OK) {
+    if (global_ble_test == BLE_RET_TEST_ERROR) {
         global_ble_test = 0;
-        ble_debug("BLE_TEST OK\n");
+        ble_debug("Error\n");
     }
 
     return 0;

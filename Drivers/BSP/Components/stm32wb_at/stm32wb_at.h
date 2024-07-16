@@ -42,7 +42,7 @@ extern "C" {
 #define AT_PRE_CMD             "AT+"
 #define AT_CMD_TEST            "AT"
 
-#define AT_GET                 "?"
+#define AT_GET                 "="
 #define AT_SET                 "="
 #define AT_READ                ":"
 #define AT_REPLY               "+"

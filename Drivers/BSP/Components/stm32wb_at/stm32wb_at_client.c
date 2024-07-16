@@ -24,6 +24,7 @@
 /* Private define ------------------------------------------------------------*/
 #define SRV_CUSTOM_APP_SVC_OFFSET     (3U)
 #define SRV_CUSTOM_APP_SVC_COUNT      (5U)
+#define PREFIX "BLE_"
 
 /* Private macros ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -33,6 +34,18 @@ static volatile stm32wb_at_BLE_CMD_t client_current_cmd;
 /* Private function prototypes -----------------------------------------------*/
 static uint8_t stm32wb_at_client_Wait_ready(void);
 
+/**
+ * @brief Remove the "BLE_" prefix from a given string if it exists.
+ * @param str The input string which may start with the "BLE_" prefix.
+ * @retval A pointer to the part of the string after the "BLE_" prefix if it exists,
+ *         otherwise a pointer to the original string.
+ */
+static inline const char* remove_prefix(const char *str) {
+    if (strncmp(str, PREFIX, strlen(PREFIX)) == 0) {
+        return str + strlen(PREFIX);
+    }
+    return str;
+}
 /* Exported functions --------------------------------------------------------*/
 
 /**
@@ -71,8 +84,7 @@ uint8_t stm32wb_at_client_Query(stm32wb_at_BLE_CMD_t cmd)
   else if(cmd < BLE_NONE)
   {
     (void)strcpy(client_buff_tx, AT_PRE_CMD);
-    (void)strcat(client_buff_tx, AT_BLE_CMD_STRING[cmd]);
-    (void)strcat(client_buff_tx, AT_GET);
+    (void)strcat(client_buff_tx, remove_prefix(AT_BLE_CMD_STRING[cmd]));
     (void)strcat(client_buff_tx, AT_EOL);
 
     client_current_cmd = cmd;
@@ -118,15 +130,62 @@ uint8_t stm32wb_at_client_Process_rx_frame(char * str)
   {
     str_local++;
     /* check if it's a response of current command */
-    if( strncmp(str_local, AT_BLE_CMD_STRING[client_current_cmd], strlen(AT_BLE_CMD_STRING[client_current_cmd])) == 0)
+    if( strncmp(str_local, remove_prefix(AT_BLE_CMD_STRING[client_current_cmd]), strlen(remove_prefix(AT_BLE_CMD_STRING[client_current_cmd]))) == 0)
     {
-      str_local += strlen(AT_BLE_CMD_STRING[client_current_cmd]);
+      str_local += strlen(remove_prefix(AT_BLE_CMD_STRING[client_current_cmd]));
 
-      if( strncmp(str_local, AT_READ, strlen(AT_READ)) == 0)
+      if( strncmp(str_local, AT_GET, strlen(AT_GET)) == 0)
       {
         str_local++;
         /* extract params regarding current command */
         switch (client_current_cmd) {
+          case BLE_VER:
+          {
+            stm32wb_at_BLE_VER_t param;
+            char * token;
+            status = 0;
+            
+            /* Module type */
+            token = strtok(str_local, AT_SEPARATOR);
+            if(token != NULL)
+            {
+              strncpy(param.module_type, token, sizeof(param.module_type) - 1);
+              param.module_type[sizeof(param.module_type) - 1] = '\0';
+            }
+            else
+            {
+              status |= 1U;
+            }
+            /* Firmware version */
+            token = strtok(NULL, AT_SEPARATOR);
+            if(token != NULL)
+            {
+              strncpy(param.fw_ver, token, sizeof(param.fw_ver) - 1);
+              param.fw_ver[sizeof(param.fw_ver) - 1] = '\0';
+            }
+            else
+            {
+              status |= 1U;
+            }
+
+            /* Production date */
+            token = strtok(NULL, AT_SEPARATOR);
+            if(token != NULL)
+            {
+              strncpy(param.production_date, token, sizeof(param.production_date) - 1);
+              param.production_date[sizeof(param.production_date) - 1] = '\0';
+            }
+            else
+            {
+              status |= 1U;
+            }
+
+            if(status == 0U)
+            {
+              status = stm32wb_at_BLE_VER_cb(&param);
+            }      
+            break;
+          }
           case BLE_SVC:
           {
             stm32wb_at_BLE_SVC_t param;

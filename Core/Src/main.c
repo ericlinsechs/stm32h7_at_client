@@ -188,6 +188,8 @@ int main(void)
     /* Test the UART communication link with BLE module */
     if (osMessagePut(bleTxHandle, BLE_TEST, 100) != osOK)
         ble_debug("Fail to put message into queue.\r\n");
+    if (osMessagePut(bleTxHandle, BLE_VER, 100) != osOK)
+        ble_debug("Fail to put message into queue.\r\n");
     /* USER CODE END RTOS_QUEUES */
 
     /* USER CODE BEGIN RTOS_THREADS */

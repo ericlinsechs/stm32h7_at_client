@@ -46,6 +46,15 @@ uint8_t stm32wb_at_BLE_TEST_cb(stm32wb_at_BLE_TEST_t *param)
         ble_debug("Fail to put message into queue.\r\n");
     return 0;
 }
+uint8_t stm32wb_at_BLE_VER_cb(stm32wb_at_BLE_VER_t *param)
+{
+    ble_debug("Module Type: %s\n", param->module_type);
+    ble_debug("Firmware Version: %s\n", param->fw_ver);
+    ble_debug("Production Date: %s\n", param->production_date);
+
+    return 0;
+}
+
 /* USER CODE END 0 */
 
 /******************************************************************************/

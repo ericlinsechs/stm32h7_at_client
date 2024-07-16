@@ -30,6 +30,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 #define FOREACH_AT_BLE_CMD(AT_BLE_CMD)\
         AT_BLE_CMD(BLE_TEST)\
+        AT_BLE_CMD(BLE_VER)\
         AT_BLE_CMD(BLE_SVC)\
         AT_BLE_CMD(BLE_INIT)\
         AT_BLE_CMD(BLE_ADV_PARAM)\
@@ -79,6 +80,14 @@ typedef struct
 {
   uint8_t status;
 } stm32wb_at_BLE_TEST_t;
+
+/* BLE_VER */
+typedef struct
+{
+  char module_type[7];
+  char fw_ver[7];
+  char production_date[9];
+} stm32wb_at_BLE_VER_t;
 
 /* BLE_INIT */
 typedef struct

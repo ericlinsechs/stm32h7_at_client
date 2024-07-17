@@ -200,10 +200,12 @@ int main(void)
         ble_debug("Fail to put message into queue.\r\n");
 
     q_cmd.cmd = BLE_BTEN;
-    q_cmd.param =
-        (stm32wb_at_BLE_BTEN_t *) pvPortMalloc(sizeof(stm32wb_at_BLE_BTEN_t));
-    stm32wb_at_BLE_BTEN_t param = {.power = 1};
-    q_cmd.param = (void *) &param;
+    q_cmd.param = pvPortMalloc(sizeof(stm32wb_at_BLE_BTEN_t));
+    if (!q_cmd.param) {
+        ble_debug("Fail to allocate memory for param.\r\n");
+    }
+    stm32wb_at_BLE_BTEN_t *param = (stm32wb_at_BLE_BTEN_t *) q_cmd.param;
+    param->power = 1;
     if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
         ble_debug("Fail to put message into queue.\r\n");
 

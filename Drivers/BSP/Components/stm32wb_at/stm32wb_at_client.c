@@ -216,6 +216,16 @@ uint8_t stm32wb_at_client_Set(stm32wb_at_BLE_CMD_t cmd, void *param)
     (void)strcat(client_buff_tx, AT_SET);
 
     switch (cmd) {
+      case BLE_BTEN:
+      {
+        stm32wb_at_BLE_BTEN_t *p = (stm32wb_at_BLE_BTEN_t*)param;
+        char str_tmp[8];
+        
+        (void)sprintf(str_tmp, "%d", p->power);
+        (void)strcat(client_buff_tx, str_tmp);
+
+        break;
+      }
       default:
         break;
     }

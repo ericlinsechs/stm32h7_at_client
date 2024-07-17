@@ -58,6 +58,11 @@ uint8_t stm32wb_at_BLE_VER_event_handle(void)
     return 0;
 }
 
+uint8_t stm32wb_at_BLE_BTEN_event_handle(void)
+{
+    return 0;
+}
+
 uint8_t stm32wb_at_BLE_NONE_event_handle(void)
 {
     return 0;

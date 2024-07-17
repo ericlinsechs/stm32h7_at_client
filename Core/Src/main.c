@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "ble_at_appli.h"
 #include "ble_at_client_event_handle.h"
+#include "stdbool.h"
 #include "stdio.h"
 #include "stm32wb_at.h"
 #include "stm32wb_at_ble.h"
@@ -33,7 +34,10 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+typedef struct {
+    stm32wb_at_BLE_CMD_t cmd;
+    void *param;
+} stm32wb_at_cmd_param_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -56,7 +60,7 @@ osThreadId defaultTaskHandle;
 osThreadId bleAtSendTaskHandle;
 osThreadId bleAtReceiveTaskHandle;
 osMessageQId bleRxHandle;
-osMessageQId bleTxHandle;
+QueueHandle_t bleTxHandle;
 
 extern ble_at_event_handle event_handles[];
 /* USER CODE END PV */
@@ -181,13 +185,26 @@ int main(void)
     bleRxHandle = osMessageCreate(osMessageQ(bleRxQueue), NULL);
 
     /* AT Tx event queue */
-    osMessageQDef(bleTxQueue, 5, int);
-    bleTxHandle = osMessageCreate(osMessageQ(bleTxQueue), NULL);
+    bleTxHandle = xQueueCreate(5, sizeof(stm32wb_at_cmd_param_t));
 
     /* Test the UART communication link with BLE module */
-    if (osMessagePut(bleTxHandle, BLE_TEST, 100) != osOK)
+    stm32wb_at_cmd_param_t q_cmd;
+    q_cmd.cmd = BLE_TEST;
+    q_cmd.param = NULL;
+    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
         ble_debug("Fail to put message into queue.\r\n");
-    if (osMessagePut(bleTxHandle, BLE_VER, 100) != osOK)
+
+    q_cmd.cmd = BLE_VER;
+    q_cmd.param = NULL;
+    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
+        ble_debug("Fail to put message into queue.\r\n");
+
+    q_cmd.cmd = BLE_BTEN;
+    q_cmd.param =
+        (stm32wb_at_BLE_BTEN_t *) pvPortMalloc(sizeof(stm32wb_at_BLE_BTEN_t));
+    stm32wb_at_BLE_BTEN_t param = {.power = 1};
+    q_cmd.param = (void *) &param;
+    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
         ble_debug("Fail to put message into queue.\r\n");
     /* USER CODE END RTOS_QUEUES */
 
@@ -384,17 +401,20 @@ void BleAtReceiveTask(void const *argument)
 void BleAtSendTask(void const *argument)
 {
     uint8_t status = 0;
-    osEvent event;
+    stm32wb_at_cmd_param_t q_cmd;
+
 
     /* Infinite loop */
     for (;;) {
-        event = osMessageGet(bleTxHandle, 0xFFFF);
-        if (event.status == osEventMessage) {
-            ble_debug("Send AT test command.\n");
-            status = stm32wb_at_client_Query(event.value.v);
-            if (status != 0) {
+        if (xQueueReceive(bleTxHandle, &q_cmd, 0xFFFF)) {
+            if (q_cmd.param) {
+                status = stm32wb_at_client_Set(q_cmd.cmd, q_cmd.param);
+                vPortFree(q_cmd.param);
+            } else
+                status = stm32wb_at_client_Query(q_cmd.cmd);
+
+            if (status != 0)
                 Error_Handler();
-            }
         }
     }
 }

@@ -31,6 +31,7 @@ extern "C" {
 #define FOREACH_AT_BLE_CMD(AT_BLE_CMD)\
         AT_BLE_CMD(BLE_TEST)\
         AT_BLE_CMD(BLE_VER)\
+        AT_BLE_CMD(BLE_BTEN)\
         AT_BLE_CMD(BLE_NONE)\
 
 #define GENERATE_ENUM(ENUM) ENUM,
@@ -53,6 +54,12 @@ typedef struct
   char fw_ver[7];
   char production_date[9];
 } stm32wb_at_BLE_VER_t;
+
+/* BLE_BTEN */
+typedef struct
+{
+  uint8_t power;
+} stm32wb_at_BLE_BTEN_t;
 
 /* BLE_NONE */
 typedef struct

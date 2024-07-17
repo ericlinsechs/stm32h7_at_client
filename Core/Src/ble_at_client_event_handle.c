@@ -42,10 +42,9 @@ extern stm32wb_at_BLE_DEVSTAT_t globla_ble_devstat;
 /* USER CODE BEGIN 0 */
 uint8_t stm32wb_at_BLE_TEST_event_handle(void)
 {
-    if (global_ble_test == BLE_RET_TEST_ERROR) {
-        global_ble_test = 0;
+    if (global_ble_test == BLE_RET_TEST_ERROR)
         ble_debug("Error\n");
-    }
+    global_ble_test = 0;
 
     return 0;
 }

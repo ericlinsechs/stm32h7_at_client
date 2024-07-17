@@ -116,13 +116,16 @@ uint8_t stm32wb_at_client_Process_rx_frame(char * str)
   {
     stm32wb_at_BLE_TEST_t param;
     client_current_cmd = BLE_NONE;
-    status = 0;
     param.status = BLE_RET_TEST_OK;
     stm32wb_at_BLE_TEST_cb(&param);
+    status = 0;
   }
-  else if( strcmp(str_local, AT_CMD_STATUS_ERROR) == 0)
+  else if( strncmp(str_local, AT_CMD_STATUS_ERROR, 3) == 0)
   {
+    stm32wb_at_BLE_TEST_t param;
     client_current_cmd = BLE_NONE;
+    param.status = BLE_RET_TEST_ERROR;
+    stm32wb_at_BLE_TEST_cb(&param);
     status = 0;
   }
   else if( strncmp(str_local, AT_REPLY, strlen(AT_REPLY)) == 0)
@@ -182,6 +185,7 @@ uint8_t stm32wb_at_client_Process_rx_frame(char * str)
             if(status == 0U)
             {
               status = stm32wb_at_BLE_VER_cb(&param);
+              client_current_cmd = BLE_NONE;
             }
             break;
           }
@@ -197,8 +201,10 @@ uint8_t stm32wb_at_client_Process_rx_frame(char * str)
             else
               status |= 1U;
 
-            if(status == 0U)
-              status = stm32wb_at_BLE_VER_cb(&param);
+            if(status == 0U) {
+              status = stm32wb_at_BLE_DEVSTAT_cb(&param);
+              client_current_cmd = BLE_NONE;
+            }
             break;
           }
           default:

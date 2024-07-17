@@ -51,7 +51,7 @@ extern "C" {
 #define AT_EOL                 "\r\n"
 
 #define AT_CMD_STATUS_OK       "OK"
-#define AT_CMD_STATUS_ERROR    "ERROR"
+#define AT_CMD_STATUS_ERROR    "ERR"
 
 /* Exported macros -----------------------------------------------------------*/
 

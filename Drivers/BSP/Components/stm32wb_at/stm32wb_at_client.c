@@ -234,7 +234,7 @@ uint8_t stm32wb_at_client_Set(stm32wb_at_BLE_CMD_t cmd, void *param)
     client_current_cmd = cmd;
 
     (void)strcpy(client_buff_tx, AT_PRE_CMD);
-    (void)strcat(client_buff_tx, AT_BLE_CMD_STRING[cmd]);
+    (void)strcat(client_buff_tx, remove_prefix(AT_BLE_CMD_STRING[cmd]));
     (void)strcat(client_buff_tx, AT_SET);
 
     switch (cmd) {

@@ -32,6 +32,7 @@ extern "C" {
         AT_BLE_CMD(BLE_TEST)\
         AT_BLE_CMD(BLE_VER)\
         AT_BLE_CMD(BLE_BTEN)\
+        AT_BLE_CMD(BLE_DEVSTAT)\
         AT_BLE_CMD(BLE_NONE)\
 
 #define GENERATE_ENUM(ENUM) ENUM,
@@ -60,6 +61,19 @@ typedef struct
 {
   uint8_t power;
 } stm32wb_at_BLE_BTEN_t;
+
+/* BLE_DEVSTAT */
+typedef union {
+    uint8_t status;                     // The whole status byte
+    struct {
+      uint8_t power_on : 1;             // BIT[0] - Power status
+      uint8_t br_edr_discoverable : 1;  // BIT[1] - BR/EDR discoverability
+      uint8_t ble_advertising : 1;      // BIT[2] - BLE advertising status
+      uint8_t br_edr_scanning : 1;      // BIT[3] - BR/EDR scanning status
+      uint8_t ble_scanning : 1;         // BIT[4] - BLE scanning status
+      uint8_t reserved : 3;             // Remaining bits (BIT[5] to BIT[7]) reserved for future use
+    } bits;
+} stm32wb_at_BLE_DEVSTAT_t;
 
 /* BLE_NONE */
 typedef struct

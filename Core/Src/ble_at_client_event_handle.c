@@ -30,6 +30,7 @@
 /* USER CODE BEGIN PV */
 extern volatile uint8_t global_ble_test;
 extern stm32wb_at_BLE_VER_t global_ble_ver;
+extern stm32wb_at_BLE_DEVSTAT_t globla_ble_devstat;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,6 +61,19 @@ uint8_t stm32wb_at_BLE_VER_event_handle(void)
 
 uint8_t stm32wb_at_BLE_BTEN_event_handle(void)
 {
+    return 0;
+}
+
+uint8_t stm32wb_at_BLE_DEVSTAT_event_handle(void)
+{
+    ble_debug("Power On: %d\n", globla_ble_devstat.bits.power_on);
+    ble_debug("BR/EDR Discoverable: %d\n",
+              globla_ble_devstat.bits.br_edr_discoverable);
+    ble_debug("BLE Advertising: %d\n", globla_ble_devstat.bits.ble_advertising);
+    ble_debug("BR/EDR Scanning: %d\n", globla_ble_devstat.bits.br_edr_scanning);
+    ble_debug("BLE Scanning: %d\n", globla_ble_devstat.bits.ble_scanning);
+    ble_debug("Status Byte: 0x%02X\n", globla_ble_devstat.status);
+
     return 0;
 }
 

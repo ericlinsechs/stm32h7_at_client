@@ -206,6 +206,11 @@ int main(void)
     q_cmd.param = (void *) &param;
     if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
         ble_debug("Fail to put message into queue.\r\n");
+
+    q_cmd.cmd = BLE_DEVSTAT;
+    q_cmd.param = NULL;
+    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
+        ble_debug("Fail to put message into queue.\r\n");
     /* USER CODE END RTOS_QUEUES */
 
     /* USER CODE BEGIN RTOS_THREADS */

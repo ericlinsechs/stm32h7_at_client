@@ -71,7 +71,6 @@ uint8_t stm32wb_at_BLE_DEVSTAT_event_handle(void)
     ble_debug("BLE Advertising: %d\n", globla_ble_devstat.bits.ble_advertising);
     ble_debug("BR/EDR Scanning: %d\n", globla_ble_devstat.bits.br_edr_scanning);
     ble_debug("BLE Scanning: %d\n", globla_ble_devstat.bits.ble_scanning);
-    ble_debug("Status Byte: 0x%02X\n", globla_ble_devstat.status);
 
     return 0;
 }

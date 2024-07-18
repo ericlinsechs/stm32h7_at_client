@@ -59,6 +59,7 @@ osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 osThreadId bleAtSendTaskHandle;
 osThreadId bleAtReceiveTaskHandle;
+osThreadId bleAtCmdTaskHandle;
 osMessageQId bleRxHandle;
 QueueHandle_t bleTxHandle;
 
@@ -73,6 +74,7 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 void BleAtSendTask(void const *argument);
 void BleAtReceiveTask(void const *argument);
+void BleAtCmdTask(void const *argument);
 
 #if defined(__ICCARM__)
 /* New definition from EWARM V9, compatible with EWARM8 */
@@ -165,6 +167,9 @@ int main(void)
                 configMINIMAL_STACK_SIZE);
     bleAtSendTaskHandle = osThreadCreate(osThread(BleAtSendTask), NULL);
 
+    osThreadDef(BleAtCmdTask, BleAtCmdTask, osPriorityNormal, 0,
+                configMINIMAL_STACK_SIZE);
+    bleAtCmdTaskHandle = osThreadCreate(osThread(BleAtCmdTask), NULL);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -186,33 +191,6 @@ int main(void)
 
     /* AT Tx event queue */
     bleTxHandle = xQueueCreate(5, sizeof(stm32wb_at_cmd_param_t));
-
-    /* Test the UART communication link with BLE module */
-    stm32wb_at_cmd_param_t q_cmd;
-    q_cmd.cmd = BLE_TEST;
-    q_cmd.param = NULL;
-    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
-        ble_debug("Fail to put message into queue.\r\n");
-
-    q_cmd.cmd = BLE_VER;
-    q_cmd.param = NULL;
-    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
-        ble_debug("Fail to put message into queue.\r\n");
-
-    q_cmd.cmd = BLE_BTEN;
-    q_cmd.param = pvPortMalloc(sizeof(stm32wb_at_BLE_BTEN_t));
-    if (!q_cmd.param) {
-        ble_debug("Fail to allocate memory for param.\r\n");
-    }
-    stm32wb_at_BLE_BTEN_t *param = (stm32wb_at_BLE_BTEN_t *) q_cmd.param;
-    param->power = 1;
-    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
-        ble_debug("Fail to put message into queue.\r\n");
-
-    q_cmd.cmd = BLE_DEVSTAT;
-    q_cmd.param = NULL;
-    if (xQueueSend(bleTxHandle, &q_cmd, 100) != pdPASS)
-        ble_debug("Fail to put message into queue.\r\n");
     /* USER CODE END RTOS_QUEUES */
 
     /* USER CODE BEGIN RTOS_THREADS */
@@ -424,6 +402,41 @@ void BleAtSendTask(void const *argument)
                 Error_Handler();
         }
     }
+}
+
+/**
+ * @brief  Send a sequence of AT commands to the BLE module.
+ * @param  argument: Not used
+ * @retval None
+ */
+void BleAtCmdTask(void const *argument)
+{
+    stm32wb_at_cmd_param_t q_cmd;
+    stm32wb_at_BLE_BTEN_t bten_param;
+    bten_param.power = 1;
+
+    /* List of BLE AT commands to send */
+    stm32wb_at_BLE_CMD_t cmd_list[] = {BLE_TEST, BLE_VER, BLE_BTEN,
+                                       BLE_DEVSTAT};
+
+    for (int i = 0; i < sizeof(cmd_list); i++) {
+        q_cmd.cmd = cmd_list[i];
+        q_cmd.param = NULL;
+
+        if (q_cmd.cmd == BLE_BTEN) {
+            q_cmd.param = pvPortMalloc(sizeof(stm32wb_at_BLE_BTEN_t));
+            if (!q_cmd.param) {
+                ble_debug("Fail to allocate memory for param.\r\n");
+                continue;
+            }
+            *(stm32wb_at_BLE_BTEN_t *) q_cmd.param = bten_param;
+        }
+
+        if (!xQueueSend(bleTxHandle, &q_cmd, 0xFFFF))
+            ble_debug("Fail to put message into queue.\r\n");
+    }
+
+    vTaskDelete(NULL);  // Delete task after execution
 }
 /* USER CODE END 4 */
 

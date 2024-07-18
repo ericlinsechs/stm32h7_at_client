@@ -351,7 +351,8 @@ static void MX_USART3_UART_Init(void)
 
 /* USER CODE BEGIN 4 */
 /**
- * @brief  Function implementing the BleAtReceiveTask thread.
+ * @brief  Initializes BLE AT client and processes received messages from the
+ * BLE module.
  * @param  argument: Not used
  * @retval None
  */
@@ -379,7 +380,7 @@ void BleAtReceiveTask(void const *argument)
 }
 
 /**
- * @brief  Function implementing the BleAtSendTask thread.
+ * @brief  Processes and sends AT commands to the BLE module.
  * @param  argument: Not used
  * @retval None
  */
@@ -405,7 +406,7 @@ void BleAtSendTask(void const *argument)
 }
 
 /**
- * @brief  Send a sequence of AT commands to the BLE module.
+ * @brief  Send a sequence of AT commands to BleAtSendTask.
  * @param  argument: Not used
  * @retval None
  */

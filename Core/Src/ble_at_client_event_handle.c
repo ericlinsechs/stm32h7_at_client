@@ -31,6 +31,7 @@
 extern volatile uint8_t global_ble_test;
 extern stm32wb_at_BLE_VER_t global_ble_ver;
 extern stm32wb_at_BLE_DEVSTAT_t globla_ble_devstat;
+extern stm32wb_at_BLE_PROFILE_t global_ble_profile;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -71,6 +72,25 @@ uint8_t stm32wb_at_BLE_DEVSTAT_event_handle(void)
     ble_debug("BLE Advertising: %d\n", globla_ble_devstat.bits.ble_advertising);
     ble_debug("BR/EDR Scanning: %d\n", globla_ble_devstat.bits.br_edr_scanning);
     ble_debug("BLE Scanning: %d\n", globla_ble_devstat.bits.ble_scanning);
+
+    return 0;
+}
+
+uint8_t stm32wb_at_BLE_PROFILE_event_handle(void)
+{
+    ble_debug("SPP: %d\n", global_ble_profile.bits.spp);
+    ble_debug("GATT Server: %d\n", global_ble_profile.bits.gatt_server);
+    ble_debug("GATT Client: %d\n", global_ble_profile.bits.gatt_client);
+    ble_debug("HFP-HF: %d\n", global_ble_profile.bits.hfp_hf);
+    ble_debug("HFP-AG: %d\n", global_ble_profile.bits.hfp_ag);
+    ble_debug("A2DP Sink: %d\n", global_ble_profile.bits.a2dp_sink);
+    ble_debug("A2DP Source: %d\n", global_ble_profile.bits.a2dp_source);
+    ble_debug("AVRCP Controller: %d\n",
+              global_ble_profile.bits.avrcp_controller);
+    ble_debug("AVRCP Target: %d\n", global_ble_profile.bits.avrcp_target);
+    ble_debug("HID Keyboard: %d\n", global_ble_profile.bits.hid_keyboard);
+    ble_debug("PBAP Server: %d\n", global_ble_profile.bits.pbap_server);
+    ble_debug("iAP2: %d\n", global_ble_profile.bits.iap2);
 
     return 0;
 }

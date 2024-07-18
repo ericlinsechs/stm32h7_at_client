@@ -207,6 +207,24 @@ uint8_t stm32wb_at_client_Process_rx_frame(char * str)
             }
             break;
           }
+          case BLE_PROFILE:
+          {
+              stm32wb_at_BLE_PROFILE_t param;
+              char *token;
+              status = 0;
+
+              token = strtok(str_local, AT_SEPARATOR);
+              if (token)
+                  param.profile = (uint16_t)strtol(token, NULL, 0);
+              else
+                  status |= 1U;
+
+              if (!status) {
+                  status = stm32wb_at_BLE_PROFILE_cb(&param);
+                  client_current_cmd = BLE_NONE;
+              }
+              break;
+          }
           default:
             break;
         }

@@ -417,8 +417,8 @@ void BleAtCmdTask(void const *argument)
     bten_param.power = 1;
 
     /* List of BLE AT commands to send */
-    stm32wb_at_BLE_CMD_t cmd_list[] = {BLE_TEST, BLE_VER, BLE_BTEN,
-                                       BLE_DEVSTAT};
+    stm32wb_at_BLE_CMD_t cmd_list[] = {BLE_TEST, BLE_VER, BLE_BTEN, BLE_DEVSTAT,
+                                       BLE_PROFILE};
 
     for (int i = 0; i < sizeof(cmd_list); i++) {
         q_cmd.cmd = cmd_list[i];

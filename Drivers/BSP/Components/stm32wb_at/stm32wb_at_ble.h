@@ -33,6 +33,7 @@ extern "C" {
         AT_BLE_CMD(BLE_VER)\
         AT_BLE_CMD(BLE_BTEN)\
         AT_BLE_CMD(BLE_DEVSTAT)\
+        AT_BLE_CMD(BLE_PROFILE)\
         AT_BLE_CMD(BLE_NONE)\
 
 #define GENERATE_ENUM(ENUM) ENUM,
@@ -74,6 +75,26 @@ typedef union {
       uint8_t reserved : 3;             // Remaining bits (BIT[5] to BIT[7]) reserved for future use
     } bits;
 } stm32wb_at_BLE_DEVSTAT_t;
+
+/* BLE_PROFILE */
+typedef union {
+    uint16_t profile;
+    struct {
+        uint16_t spp : 1;               // BIT[0] - SPP (Serial Port Profile)
+        uint16_t gatt_server : 1;       // BIT[1] - GATT Server
+        uint16_t gatt_client : 1;       // BIT[2] - GATT Client
+        uint16_t hfp_hf : 1;            // BIT[3] - HFP-HF (Hands-Free Profile Handsfree)
+        uint16_t hfp_ag : 1;            // BIT[4] - HFP-AG (Hands-Free Profile Audio Gateway)
+        uint16_t a2dp_sink : 1;         // BIT[5] - A2DP Sink (Advanced Audio Distribution Profile)
+        uint16_t a2dp_source : 1;       // BIT[6] - A2DP Source (Advanced Audio Distribution Profile)
+        uint16_t avrcp_controller : 1;  // BIT[7] - AVRCP Controller (Audio/Video Remote Controller Profile)
+        uint16_t avrcp_target : 1;      // BIT[8] - AVRCP Target (Audio/Video Remote Controller Profile)
+        uint16_t hid_keyboard : 1;      // BIT[9] - HID Keyboard (Human Interface Profile)
+        uint16_t pbap_server : 1;       // BIT[10] - PBAP Server (Phonebook Access Profile)
+        uint16_t reserved : 4;          // BIT[11] to BIT[14] - Reserved for future use
+        uint16_t iap2 : 1;              // BIT[15] - iAP2 (For iOS devices)
+    } bits;
+} stm32wb_at_BLE_PROFILE_t;
 
 /* BLE_NONE */
 typedef struct
